@@ -23,10 +23,7 @@ class Givaro < Formula
 
   depends_on "gmp"
 
-  patch do
-    url "https://patch-diff.githubusercontent.com/raw/linbox-team/givaro/pull/218.patch"
-    sha256 "20151b77f357d8fa0205bbd238a3d74d5d414d0db2a21446fcc047530eca0c96"
-  end
+  patch :DATA
 
   patch do
     url "https://gitweb.gentoo.org/repo/gentoo.git/plain/sci-libs/givaro/files/givaro-4.2.0-gcc14.patch"
@@ -34,10 +31,9 @@ class Givaro < Formula
   end
 
   patch do
-    url "https://github.com/linbox-team/givaro/commit/a81d44b3b57c275bcb04ab00db79be02561deaa2.patch"
+    url "https://github.com/linbox-team/givaro/commit/a81d44b3b57c275bcb04ab00db79be02561deaa2.patch?full_index=1"
     sha256 "ab7b03940593edd4f816222406f9af45802e7d9084a5d3f5a6613ec96eed7de2"
   end
-
 
   # https://github.com/linbox-team/givaro/issues/232
   patch do
@@ -61,3 +57,17 @@ class Givaro < Formula
     system "true"
   end
 end
+__END__
+diff --git a/src/library/poly1/givdegree.h b/src/library/poly1/givdegree.h
+index 3753a425..eb85a0dd 100644
+--- a/src/library/poly1/givdegree.h
++++ b/src/library/poly1/givdegree.h
+@@ -19,6 +19,8 @@
+ #ifndef __GIVARO_poly1degree_H
+ #define __GIVARO_poly1degree_H
+ 
++#include <cstdint>
++
+ #include <iostream>
+ 
+ namespace Givaro {
