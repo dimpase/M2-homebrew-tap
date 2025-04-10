@@ -29,17 +29,15 @@ class Linbox < Formula
   depends_on "ntl"
   depends_on "openblas" unless OS.mac?
 
-
   patch do
-    url "https://patch-diff.githubusercontent.com/raw/linbox-team/linbox/pull/322.patch"
+    url "https://github.com/linbox-team/linbox/commit/d1f618fb0ee4a84be3ccddcfc28b257f34e1cbf7.patch?full_index=1"
     sha256 "02d540bee9a0f482820ec2b002c443dd6bafc3d5177f3e7c439712fe0c9fe99c"
   end
 
   patch do
-    url "https://github.com/linbox-team/linbox/commit/4a1e1395804d4630ec556c61ba3f2cb67e140248.patch"
+    url "https://github.com/linbox-team/linbox/commit/4a1e1395804d4630ec556c61ba3f2cb67e140248.patch?full_index=1"
     sha256 "e8f9df3c22ab119d8e363519d623aada86d2f804a7c06ff77efc4291698ca5d7"
   end
-
 
   def install
     ENV.cxx11
