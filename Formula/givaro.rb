@@ -32,7 +32,7 @@ class Givaro < Formula
 
   patch do
     url "https://github.com/linbox-team/givaro/commit/a81d44b3b57c275bcb04ab00db79be02561deaa2.patch?full_index=1"
-    sha256 "ab7b03940593edd4f816222406f9af45802e7d9084a5d3f5a6613ec96eed7de2"
+    sha256 "0fed7660854d688e4ae3c163a69bd14701826710e8e648414e85288be23d14b6"
   end
 
   # https://github.com/linbox-team/givaro/issues/232
