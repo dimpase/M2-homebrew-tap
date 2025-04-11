@@ -31,12 +31,12 @@ class Linbox < Formula
 
   patch do
     url "https://github.com/linbox-team/linbox/commit/d1f618fb0ee4a84be3ccddcfc28b257f34e1cbf7.patch?full_index=1"
-    sha256 "02d540bee9a0f482820ec2b002c443dd6bafc3d5177f3e7c439712fe0c9fe99c"
+    sha256 "17241e1ed8937c1aa3d2fa839ee981332ce393f5c4f7c61784021064fc7f258a"
   end
 
   patch do
     url "https://github.com/linbox-team/linbox/commit/4a1e1395804d4630ec556c61ba3f2cb67e140248.patch?full_index=1"
-    sha256 "e8f9df3c22ab119d8e363519d623aada86d2f804a7c06ff77efc4291698ca5d7"
+    sha256 "63dc9e7cb178ea4498f6168534563a2fb4edae37b30997ecf3c250621d86cd94"
   end
 
   def install
