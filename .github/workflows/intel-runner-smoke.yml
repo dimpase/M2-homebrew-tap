@@ -1,0 +1,45 @@
+name: Intel runner smoke test
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: intel-sequoia-runner
+  cancel-in-progress: false
+jobs:
+  smoke:
+    if: github.repository == 'dimpase/M2-homebrew-tap' && github.actor == 'dimpase' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, macOS, X64, brew-intel-sequoia]
+    timeout-minutes: 10
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_ANALYTICS: '1'
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
+    steps:
+      - name: Verify host and installed build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = x86_64
+          test "$(sw_vers -productVersion | cut -d. -f1)" = 15
+          test "$(brew --prefix)" = /usr/local
+          sw_vers
+          df -h /Users/dima
+          brew config
+          /usr/local/opt/llvm/bin/clang --version
+          rustc --version
+          cargo --version
+          pkgconf --version
+      - name: Record Node build readiness
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+      - name: Validate the prototype installation
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew linkage --test pkgconf
+          brew test pkgconf
