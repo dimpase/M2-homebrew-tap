@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install the pinned Intel Sequoia Macaulay2 bottle set.
+# Install the pinned Intel Sequoia Macaulay2 bottles on macOS 15 or 26.
 set -euo pipefail
 
 test "$(uname -m)" = x86_64
