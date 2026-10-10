@@ -9,7 +9,11 @@ concurrency:
 jobs:
   install:
     if: github.repository == 'dimpase/M2-homebrew-tap' && github.actor == 'dimpase'
-    runs-on: macos-15-intel
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15-intel, macos-26-intel]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     env:
       HOMEBREW_NO_AUTOREMOVE: '1'
@@ -33,7 +37,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: intel-sequoia-installation
+          name: intel-sequoia-installation-${{ matrix.runner }}
           path: |
             intel-install.log
             m2-intel-pour-report.json

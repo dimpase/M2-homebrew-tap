@@ -3,7 +3,10 @@
 set -euo pipefail
 
 test "$(uname -m)" = x86_64
-test "$(sw_vers -productVersion | cut -d. -f1)" = 15
+case "$(sw_vers -productVersion | cut -d. -f1)" in
+  15|26) ;;
+  *) echo 'This installer requires Intel macOS 15 or 26.' >&2; exit 1 ;;
+esac
 brew_cmd=/usr/local/Homebrew/bin/brew
 test "$($brew_cmd --prefix)" = /usr/local
 
