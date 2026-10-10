@@ -1,0 +1,32 @@
+name: Intel bottle installation test
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: intel-sequoia-bottle-installation
+  cancel-in-progress: false
+jobs:
+  install:
+    if: github.repository == 'dimpase/M2-homebrew-tap' && github.actor == 'dimpase'
+    runs-on: macos-15-intel
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned runtime bottles on a disposable runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          sw_vers
+          df -h /
+          ./install-m2-intel.sh --clean-ci 2>&1 | tee intel-install.log
+      - name: Save installation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intel-sequoia-installation
+          path: |
+            intel-install.log
+            m2-intel-pour-report.json
+            /Users/runner/Library/Logs/Homebrew/macaulay2/**
+          if-no-files-found: warn
