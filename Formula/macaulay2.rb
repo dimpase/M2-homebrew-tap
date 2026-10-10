@@ -59,6 +59,16 @@ class Macaulay2 < Formula
   depends_on "msolve" => :recommended
   depends_on "topcom" => :recommended
 
+  on_macos do
+    on_intel do
+      bottle do
+        root_url "https://github.com/dimpase/M2-homebrew-tap/releases/download/intel-sequoia-20261009"
+        rebuild 2
+        sha256 cellar: :any, sequoia: "81e3e01daa0b8a327463aab6dad155b6679c4e6adcceda1a7306dfb082cde558"
+      end
+    end
+  end
+
   patch :DATA
 
   def git_clone_at_commit(url, dir, commit)
@@ -69,6 +79,9 @@ class Macaulay2 < Formula
   end
 
   def install
+    # Build documentation without launching X11 programs such as xterm.
+    ENV.delete("DISPLAY")
+
     # Don't print the shims prefix path
     inreplace "M2/Macaulay2/packages/Macaulay2Doc/functions/findProgram-doc.m2", "Verbose => true", "Verbose => false"
 

@@ -16,6 +16,16 @@ class Lrs < Formula
 
   depends_on "gmp"
 
+  on_macos do
+    on_intel do
+      bottle do
+        root_url "https://github.com/dimpase/M2-homebrew-tap/releases/download/intel-sequoia-20261009"
+        rebuild 3
+        sha256 cellar: :any, sequoia: "15f7ef761a50bb2686c5187ecb8a7f95527a592e1c6e00cda40be3cd0e2a6531"
+      end
+    end
+  end
+
   def install
     system "make", "lrs", "prefix=#{prefix}", "CC=#{ENV.cc} -std=gnu17",
            "INCLUDEDIR=#{Formula["gmp"].include}",
