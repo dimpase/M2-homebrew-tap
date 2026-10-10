@@ -19,6 +19,13 @@ jobs:
           set -euo pipefail
           sw_vers
           df -h /
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          core_dir="$(/usr/local/Homebrew/bin/brew --repository homebrew/core)"
+          if test -d "$core_dir/.git"; then
+            /usr/bin/git -C "$core_dir" status --short
+            /usr/bin/git -C "$core_dir" reset --hard HEAD
+            /usr/bin/git -C "$core_dir" clean -fdx
+          fi
           ./install-m2-intel.sh --clean-ci 2>&1 | tee intel-install.log
       - name: Save installation evidence
         if: always()
