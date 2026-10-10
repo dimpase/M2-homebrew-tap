@@ -11,6 +11,8 @@ jobs:
     if: github.repository == 'dimpase/M2-homebrew-tap' && github.actor == 'dimpase'
     runs-on: macos-15-intel
     timeout-minutes: 60
+    env:
+      HOMEBREW_NO_AUTOREMOVE: '1'
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned runtime bottles on a disposable runner
