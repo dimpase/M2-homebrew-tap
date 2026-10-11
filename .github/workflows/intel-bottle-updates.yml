@@ -1,0 +1,53 @@
+name: Check Intel bottle updates
+on:
+  schedule:
+    - cron: '23 9 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: intel-bottle-updates
+  cancel-in-progress: false
+jobs:
+  check:
+    if: github.repository == 'dimpase/M2-homebrew-tap'
+    runs-on: macos-15-intel
+    timeout-minutes: 30
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_INSTALL_FROM_API: '1'
+      HOMEBREW_NO_ANALYTICS: '1'
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+      HOMEBREW_NO_AUTOREMOVE: '1'
+      HOMEBREW_CORE_GIT_REMOTE: https://github.com/Homebrew/homebrew-core.git
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect current upstream runtime recipes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          sw_vers
+          brew_cmd=/usr/local/Homebrew/bin/brew
+          "$brew_cmd" tap --custom-remote --force homebrew/core https://github.com/Homebrew/homebrew-core.git
+          "$brew_cmd" tap --custom-remote macaulay2/tap https://github.com/Macaulay2/homebrew-tap.git
+          for tap in homebrew/core macaulay2/tap; do
+            tap_dir=$("$brew_cmd" --repository "$tap")
+            git -C "$tap_dir" fetch --depth=1 origin main
+            git -C "$tap_dir" reset --hard FETCH_HEAD
+            git -C "$tap_dir" clean -fdx
+          done
+          if "$brew_cmd" help trust >/dev/null 2>&1; then
+            "$brew_cmd" trust --tap https://github.com/Homebrew/homebrew-core.git https://github.com/Macaulay2/homebrew-tap.git
+          fi
+          "$brew_cmd" ruby automation/check-intel-updates.rb automation/intel-baseline.json
+          cat intel-update-report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Save upstream snapshot and update report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intel-bottle-update-report
+          path: |
+            intel-update-report.json
+            intel-update-report.md
+          if-no-files-found: error
