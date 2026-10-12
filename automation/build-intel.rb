@@ -3,7 +3,7 @@ require "formula_installer"
 require "install"
 require "reinstall"
 f = Formula[ARGV.fetch(0)]
-node = Pathname(ENV.fetch("INTEL_NODE_TOOL"))
+node = Pathname(ARGV.fetch(1))
 external_node = f.full_name == "macaulay2/tap/macaulay2"
 missing = f.deps.reject do |dep|
   dep.optional? || dep.test? || dep.to_formula.latest_version_installed? ||
@@ -22,6 +22,10 @@ if external_node
   tools = [node/"bin", python && python.libexec/"bin", python&.bin, HOMEBREW_PREFIX/"bin"].compact.join(File::PATH_SEPARATOR)
   ENV["HOMEBREW_PATH"] = "#{tools}:#{ENV.fetch('HOMEBREW_PATH')}"
   ENV["PATH"] = "#{tools}:#{ENV.fetch('PATH')}"
+end
+if ARGV.include?("--preflight")
+  puts "Validated prerequisites and build tools for #{f.full_name}"
+  exit
 end
 class PreparedIntelInstaller < FormulaInstaller
   def compute_dependencies(use_cache: true)

@@ -216,7 +216,6 @@ def get_node():
     assert digest(archive) == NODE_SHA, 'Node build tool checksum mismatch'
     with tarfile.open(archive) as bundle:
         bundle.extractall(WORK, filter='data')
-    os.environ['INTEL_NODE_TOOL'] = str(destination)
     return destination
 
 
@@ -282,7 +281,7 @@ def build(_args):
             assert metadata['cache_key'] == state['cache_key'] and digest(archive) == metadata['sha256'], 'Cached bottle mismatch'
             run([BREW, 'install', '--force-bottle', str(archive)], log=WORK/'logs'/(row['short_name'] + '-cache-pour.log'), guard=True)
         else:
-            run([BREW, 'ruby', str(SCRIPT/'build-intel.rb'), name], log=folder/'build.log', guard=True)
+            run([BREW, 'ruby', str(SCRIPT/'build-intel.rb'), name, str(node)], log=folder/'build.log', guard=True)
             run([BREW, 'linkage', '--test', name], log=folder/'linkage.log', guard=True)
             run([BREW, 'test', name], log=folder/'test.log', guard=True)
             run([BREW, 'bottle', '--json', '--root-url=https://github.com/dimpase/M2-homebrew-tap/releases/download/' + state['tag'], name], cwd=folder, log=folder/'bottle.log', guard=True)
