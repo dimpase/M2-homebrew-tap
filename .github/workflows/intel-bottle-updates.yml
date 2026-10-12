@@ -50,6 +50,9 @@ jobs:
             git -C "$tap_dir" reset --hard FETCH_HEAD
             git -C "$tap_dir" clean -fdx
           done
+          if "$brew_cmd" help trust >/dev/null 2>&1; then
+            "$brew_cmd" trust --tap https://github.com/Homebrew/homebrew-core.git https://github.com/Macaulay2/homebrew-tap.git
+          fi
           "$brew_cmd" ruby automation/check-intel-updates.rb automation/intel-baseline.json
           cat intel-update-report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Save upstream snapshot and update report

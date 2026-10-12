@@ -175,6 +175,8 @@ def prepare(args):
         git(path, 'clean', '-fdx')
         state['upstream_heads'][kind] = git(path, 'rev-parse', 'HEAD')
         state['tap_paths'][kind] = str(path)
+    if subprocess.run([BREW, 'help', 'trust'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+        run([BREW, 'trust', '--tap', *['https://github.com/' + UPSTREAM[kind] + '.git' for kind in UPSTREAM]])
     raw = inventory()
     dump(WORK/'upstream-inventory.json', raw)
     affected = affected_runtime(raw['formulae'], raw['runtime_names'], baseline)
