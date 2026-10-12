@@ -1,33 +1,46 @@
-name: Check Intel bottle updates
+name: Update Intel bottles
 on:
   schedule:
     - cron: '23 9 * * *'
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Promote after both clean Intel installation tests pass
+        type: boolean
+        default: true
 permissions:
   contents: read
 concurrency:
   group: intel-bottle-updates
   cancel-in-progress: false
+env:
+  HOMEBREW_NO_AUTO_UPDATE: '1'
+  HOMEBREW_NO_INSTALL_FROM_API: '1'
+  HOMEBREW_NO_ANALYTICS: '1'
+  HOMEBREW_NO_INSTALL_CLEANUP: '1'
+  HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
+  HOMEBREW_NO_AUTOREMOVE: '1'
+  HOMEBREW_MAKE_JOBS: '4'
+  HOMEBREW_CORE_GIT_REMOTE: https://github.com/Homebrew/homebrew-core.git
 jobs:
   check:
     if: github.repository == 'dimpase/M2-homebrew-tap'
     runs-on: macos-15-intel
     timeout-minutes: 30
-    env:
-      HOMEBREW_NO_AUTO_UPDATE: '1'
-      HOMEBREW_NO_INSTALL_FROM_API: '1'
-      HOMEBREW_NO_ANALYTICS: '1'
-      HOMEBREW_NO_INSTALL_CLEANUP: '1'
-      HOMEBREW_NO_AUTOREMOVE: '1'
-      HOMEBREW_CORE_GIT_REMOTE: https://github.com/Homebrew/homebrew-core.git
+    outputs:
+      update_needed: ${{ steps.check.outputs.update_needed }}
+      core_commit: ${{ steps.check.outputs.core_commit }}
+      m2_commit: ${{ steps.check.outputs.m2_commit }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Inspect current upstream runtime recipes
+        id: check
         shell: bash
         run: |
           set -euo pipefail
           test "$RUNNER_ENVIRONMENT" = github-hosted
-          sw_vers
           brew_cmd=/usr/local/Homebrew/bin/brew
           "$brew_cmd" tap --custom-remote --force homebrew/core https://github.com/Homebrew/homebrew-core.git
           "$brew_cmd" tap --custom-remote macaulay2/tap https://github.com/Macaulay2/homebrew-tap.git
@@ -37,9 +50,6 @@ jobs:
             git -C "$tap_dir" reset --hard FETCH_HEAD
             git -C "$tap_dir" clean -fdx
           done
-          if "$brew_cmd" help trust >/dev/null 2>&1; then
-            "$brew_cmd" trust --tap https://github.com/Homebrew/homebrew-core.git https://github.com/Macaulay2/homebrew-tap.git
-          fi
           "$brew_cmd" ruby automation/check-intel-updates.rb automation/intel-baseline.json
           cat intel-update-report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Save upstream snapshot and update report
@@ -51,3 +61,164 @@ jobs:
             intel-update-report.json
             intel-update-report.md
           if-no-files-found: error
+  build:
+    needs: check
+    if: needs.check.outputs.update_needed == 'true'
+    runs-on: macos-15-intel
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare candidate dependency graph
+        id: prepare
+        env:
+          CORE_COMMIT: ${{ needs.check.outputs.core_commit }}
+          M2_COMMIT: ${{ needs.check.outputs.m2_commit }}
+        run: python automation/publish-intel.py prepare --core-commit "$CORE_COMMIT" --m2-commit "$M2_COMMIT"
+      - uses: actions/cache/restore@v4
+        with:
+          path: intel-build-cache
+          key: intel-build-v1-${{ steps.prepare.outputs.cache_key }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: intel-build-v1-${{ steps.prepare.outputs.cache_key }}-
+      - name: Build and validate missing Intel bottles
+        run: python automation/publish-intel.py build
+      - name: Save validated bottle cache, including partial progress
+        if: always() && steps.prepare.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: intel-build-cache
+          key: intel-build-v1-${{ steps.prepare.outputs.cache_key }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Save candidate source and bottle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: intel-candidate-build
+          path: |
+            intel-work/state.json
+            intel-work/upstream-inventory.json
+            intel-work/candidate-inventory.json
+            intel-work/built-bottles.json
+            intel-work/candidate-formulae.tar.gz
+            intel-work/assets
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intel-build-failure
+          path: |
+            intel-work/state.json
+            intel-work/logs
+            intel-build-cache/**/*.log
+            /Users/runner/Library/Logs/Homebrew/**
+          if-no-files-found: warn
+  stage:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      tag: ${{ steps.stage.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: intel-candidate-build
+          path: intel-work
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: app
+        with:
+          app-id: ${{ vars.INTEL_BOTTLES_APP_ID }}
+          private-key: ${{ secrets.INTEL_BOTTLES_APP_PRIVATE_KEY }}
+          owner: dimpase
+          repositories: |
+            M2-homebrew-tap
+            homebrew-core
+          permission-contents: write
+          permission-actions: write
+      - name: Stage candidate metadata and release assets
+        id: stage
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: python3 automation/publish-intel.py stage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: intel-candidate-publication
+          path: |
+            intel-work/state.json
+            intel-work/assets
+            intel-work/next-baseline.json
+          if-no-files-found: error
+          retention-days: 30
+  test:
+    needs: stage
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15-intel, macos-26-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: intel-candidate-publication
+          path: intel-work
+      - name: Clean installation of candidate bottles
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          sw_vers | tee intel-os-version.log
+          core_dir=$(/usr/local/Homebrew/bin/brew --repository homebrew/core)
+          if test -d "$core_dir/.git"; then
+            git -C "$core_dir" reset --hard HEAD
+            git -C "$core_dir" clean -fdx
+          fi
+          bash intel-work/assets/install-m2-intel.sh --clean-ci 2>&1 | tee intel-install.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: intel-install-${{ matrix.runner }}
+          path: |
+            intel-os-version.log
+            intel-install.log
+            m2-intel-pour-report.json
+            /Users/runner/Library/Logs/Homebrew/macaulay2/**
+          if-no-files-found: error
+  promote:
+    needs: [stage, test]
+    if: github.event_name == 'schedule' || inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: intel-candidate-publication
+          path: intel-work
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: intel-install-*
+          path: intel-evidence
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: app
+        with:
+          app-id: ${{ vars.INTEL_BOTTLES_APP_ID }}
+          private-key: ${{ secrets.INTEL_BOTTLES_APP_PRIVATE_KEY }}
+          owner: dimpase
+          repositories: |
+            M2-homebrew-tap
+            homebrew-core
+          permission-contents: write
+          permission-actions: write
+      - name: Verify published assets and promote the tested pair
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: python3 automation/publish-intel.py promote

@@ -50,6 +50,14 @@ changed.each do |row|
 end
 lines += ["", "Missing compatible upstream Intel bottles: #{missing.map { |row| row.fetch('name') }.join(', ')}.", "",
   "Existing private bottles are additional to this upstream inventory. Reuse requires unchanged recipes and compatible dependency versions; a version match alone is insufficient.", "",
-  "The stable branches and published installer have not been changed. Build missing bottles in a candidate snapshot, verify the complete runtime closure on both Intel runners, then publish and advance the baseline together."]
+  "This check has not changed the stable branches or published installer. When updates are needed, the downstream jobs build a candidate, test its complete runtime closure on both Intel runners, and promote only after both pass."]
 File.write("intel-update-report.md", lines.join("\n") + "\n")
 puts lines.join("\n")
+
+if ENV["GITHUB_OUTPUT"]
+  File.open(ENV.fetch("GITHUB_OUTPUT"), "a") do |file|
+    file.puts "update_needed=#{report.fetch("update_needed")}"
+    file.puts "core_commit=#{report.fetch("upstream_core_commit")}"
+    file.puts "m2_commit=#{report.fetch("upstream_m2_commit")}"
+  end
+end
