@@ -15,6 +15,10 @@ if external_node
   raise "Unexpected Node build tool" unless Utils.safe_popen_read(node/"bin/node", "--version").strip == "v26.11.1"
   python_dep = f.deps.find { |dep| dep.name.start_with?("python@") }
   python = python_dep&.to_formula
+  if python
+    ENV["Python_ROOT_DIR"] = python.prefix.to_s
+    ENV["Python3_ROOT_DIR"] = python.prefix.to_s
+  end
   tools = [node/"bin", python && python.libexec/"bin", python&.bin, HOMEBREW_PREFIX/"bin"].compact.join(File::PATH_SEPARATOR)
   ENV["HOMEBREW_PATH"] = "#{tools}:#{ENV.fetch('HOMEBREW_PATH')}"
   ENV["PATH"] = "#{tools}:#{ENV.fetch('PATH')}"

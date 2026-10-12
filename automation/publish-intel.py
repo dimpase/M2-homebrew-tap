@@ -32,6 +32,8 @@ def run(args, cwd=None, log=None, guard=False, input_text=None):
     if guard:
         env.pop('GH_TOKEN', None)
         env.pop('GITHUB_TOKEN', None)
+        for hint in ('Python_ROOT_DIR', 'Python2_ROOT_DIR', 'Python3_ROOT_DIR', 'PKG_CONFIG_PATH', 'PYTHONHOME', 'PYTHONPATH'):
+            env.pop(hint, None)
     if log is None:
         return subprocess.check_output(args, cwd=cwd, env=env, text=True, input=input_text).strip()
     log.parent.mkdir(parents=True, exist_ok=True)
@@ -209,7 +211,7 @@ def prepare(args):
 
 def get_node():
     destination = WORK/NODE_NAME
-    archive = WORK/(NODE_NAME + '.tar.xz')
+    archive = WORK/(NODE_NAME + '.tar.gz')
     run(['curl', '-fL', '--retry', '3', 'https://nodejs.org/dist/v26.11.1/' + archive.name, '-o', str(archive)])
     assert digest(archive) == NODE_SHA, 'Node build tool checksum mismatch'
     with tarfile.open(archive) as bundle:
