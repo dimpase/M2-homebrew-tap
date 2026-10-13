@@ -162,6 +162,7 @@ def clone_stable(kind, destination):
 def prepare(args):
     disposable()
     WORK.mkdir(parents=True, exist_ok=True)
+    CACHE.mkdir(parents=True, exist_ok=True)
     baseline = json.loads((SCRIPT/'intel-baseline.json').read_text())
     state = {'tag': 'intel-bottles-' + os.environ['GITHUB_RUN_ID'], 'stable_heads': {}, 'upstream_heads': {}, 'tap_paths': {}}
     for kind, tap in [('core', 'homebrew/core'), ('m2', 'macaulay2/tap')]:
@@ -264,6 +265,8 @@ def build(_args):
         run([BREW, 'uninstall', '--force', '--ignore-dependencies', 'curl'])
     # This runner is disposable. Remove old runtime kegs before rebuilding or pouring.
     for name in state['runtime_names']:
+        if name == 'zstd':
+            continue  # Keep cache compression available before/after the build.
         versions = subprocess.run([BREW, 'list', '--versions', name], capture_output=True, text=True)
         if versions.stdout.strip():
             run([BREW, 'uninstall', '--force', '--ignore-dependencies', name])
@@ -286,7 +289,16 @@ def build(_args):
             assert metadata['cache_key'] == state['cache_key'] and digest(archive) == metadata['sha256'], 'Cached bottle mismatch'
             run([BREW, 'install', '--force-bottle', str(archive)], log=WORK/'logs'/(row['short_name'] + '-cache-pour.log'), guard=True)
         else:
+            installed = subprocess.run([BREW, 'list', '--versions', name], capture_output=True, text=True)
+            if installed.stdout.strip():
+                run([BREW, 'uninstall', '--force', '--ignore-dependencies', name])
+            # Rebuild retries can leave an incomplete archive; discard those outputs only.
+            for old_output in [*folder.glob('*.bottle.json'), *folder.glob('*.bottle*.tar.gz')]:
+                old_output.unlink()
             run([BREW, 'ruby', str(SCRIPT/'build-intel.rb'), name, str(node)], log=folder/'build.log', guard=True)
+            receipt = json.loads((Path('/usr/local/Cellar')/row['short_name']/row['version']/'INSTALL_RECEIPT.json').read_text())
+            dump(folder/'source-receipt.json', receipt)
+            assert receipt['built_as_bottle'] and not receipt['poured_from_bottle'], 'Not a source-built bottle receipt'
             run([BREW, 'linkage', '--test', name], log=folder/'linkage.log', guard=True)
             run([BREW, 'test', name], log=folder/'test.log', guard=True)
             run([BREW, 'bottle', '--json', '--root-url=https://github.com/dimpase/M2-homebrew-tap/releases/download/' + state['tag'], name], cwd=folder, log=folder/'bottle.log', guard=True)
@@ -296,8 +308,6 @@ def build(_args):
             tag = item['tags']['sequoia']
             archive = folder/tag['local_filename']
             assert digest(archive) == tag['sha256'], 'Bottle checksum mismatch'
-            receipt = json.loads((Path('/usr/local/Cellar')/row['short_name']/row['version']/'INSTALL_RECEIPT.json').read_text())
-            assert receipt['built_as_bottle'] and not receipt['poured_from_bottle'], 'Not a source-built bottle receipt'
             metadata = {'formula': name, 'version': row['version'], 'local_filename': archive.name,
                 'filename': unquote(tag['filename']), 'sha256': digest(archive), 'cache_key': state['cache_key'],
                 'bottle_metadata': item, 'source_receipt': receipt, 'recipe_sha256': row['recipe_sha256'],

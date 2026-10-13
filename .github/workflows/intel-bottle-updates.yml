@@ -117,6 +117,9 @@ jobs:
             intel-work/state.json
             intel-work/logs
             intel-build-cache/**/*.log
+            intel-build-cache/**/source-receipt.json
+            intel-build-cache/**/manifest.json
+            intel-build-cache/**/*.bottle.json
             /Users/runner/Library/Logs/Homebrew/**
           if-no-files-found: warn
   stage:

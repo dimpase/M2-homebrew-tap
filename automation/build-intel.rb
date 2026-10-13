@@ -32,12 +32,13 @@ class PreparedIntelInstaller < FormulaInstaller
     []
   end
 end
-keg = f.opt_prefix.directory? ? Keg.new(f.opt_prefix.realpath) : nil
+raise "Source build requires a fresh keg" if f.opt_prefix.directory?
 installer = (external_node ? PreparedIntelInstaller : FormulaInstaller).new(f,
   build_bottle: true, verbose: true, env: external_node ? "std" : nil,
   installed_on_request: true, link_keg: !f.keg_only?)
 Homebrew::Install.perform_preinstall_checks_once
 raise "Source fetch failed" unless Homebrew::Install.fetch_formulae([installer]).include?(installer)
-context = Homebrew::Reinstall::InstallationContext.new(formula_installer: installer, keg: keg,
-  formula: f, options: Options.new, link_keg: !f.keg_only?)
-Homebrew::Reinstall.reinstall_formula(context)
+installer.install
+Tab.clear_cache
+Keg.clear_cache
+installer.finish
