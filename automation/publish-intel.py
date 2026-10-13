@@ -257,6 +257,11 @@ def build(_args):
     CACHE.mkdir(exist_ok=True)
     node = get_node()
     os.environ['PATH'] = str(node/'bin') + os.pathsep + os.environ['PATH']
+    # The image's brewed curl can link runtime libraries we are about to remove.
+    # Use macOS curl until a declared curl dependency is installed by this graph.
+    curl_versions = subprocess.run([BREW, 'list', '--versions', 'curl'], capture_output=True, text=True)
+    if curl_versions.stdout.strip():
+        run([BREW, 'uninstall', '--force', '--ignore-dependencies', 'curl'])
     # This runner is disposable. Remove old runtime kegs before rebuilding or pouring.
     for name in state['runtime_names']:
         versions = subprocess.run([BREW, 'list', '--versions', name], capture_output=True, text=True)
