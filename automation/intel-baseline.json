@@ -1,214 +1,214 @@
 {
-  "release": "https://github.com/dimpase/M2-homebrew-tap/releases/tag/intel-sequoia-20261009",
-  "core_commit": "c1ebdca2ff4b1ccb46a02c3946f8bc6f9814b117",
-  "m2_commit": "5ded09e4d7921926d21eb2bb86c77c1a7d298f37",
-  "upstream_core_commit": "f4281d737abd1808c64b83eb07d921cd83ba96bf",
-  "upstream_m2_commit": "c57ef6f496dc2c7fdf953ce12721f9673379f70b",
+  "core_commit": "9ce039f253c79d9cfc7342e65b0e1e1f0360b308",
   "formulae": [
     {
+      "name": "macaulay2/tap/macaulay2",
+      "recipe_sha256": "193e932e697bc4b124b77db349db01778eb98d5c92ae7e3e8ae46f18145e2b24",
+      "version": "1.26.06_1"
+    },
+    {
       "name": "bdw-gc",
-      "version": "8.2.12",
-      "recipe_sha256": "82abb0014d03fcd14de1e16bf9b096c9834f73bdd68b28809f29b8188da4157d"
-    },
-    {
-      "name": "icu4c@78",
-      "version": "78.3",
-      "recipe_sha256": "e38c45e6a6d907c83a1f6b41e196352715e58d0e07a86145b56e1f53a4992463"
-    },
-    {
-      "name": "xz",
-      "version": "5.8.4",
-      "recipe_sha256": "cc0165e044078df523518fdfe9c0a630e8f4f4a32d5198e80cf1ec25b86f4950"
-    },
-    {
-      "name": "lz4",
-      "version": "1.10.0",
-      "recipe_sha256": "eb39c32707a8ae8c4b1b207681b3cd59cf5360adb8db53df948ccef0ee333ba5"
-    },
-    {
-      "name": "zstd",
-      "version": "1.5.7_1",
-      "recipe_sha256": "557606a8021515f656771c1c03440af2077e531c8804b83af883b0a9531a3d0d"
+      "recipe_sha256": "82abb0014d03fcd14de1e16bf9b096c9834f73bdd68b28809f29b8188da4157d",
+      "version": "8.2.12"
     },
     {
       "name": "boost",
-      "version": "1.92.0",
-      "recipe_sha256": "9572d805ca7acd56c1f0bfe43a330bb246741bb235f33a804612625f005bd4ea"
+      "recipe_sha256": "9572d805ca7acd56c1f0bfe43a330bb246741bb235f33a804612625f005bd4ea",
+      "version": "1.92.0"
     },
     {
-      "name": "gmp",
-      "version": "6.3.0",
-      "recipe_sha256": "e7eb8608f9d25bd82d16b38625e3e88a7a117d4bbc39b088e9df27252461062f"
+      "name": "icu4c@78",
+      "recipe_sha256": "e38c45e6a6d907c83a1f6b41e196352715e58d0e07a86145b56e1f53a4992463",
+      "version": "78.3"
     },
     {
-      "name": "libomp",
-      "version": "23.1.3",
-      "recipe_sha256": "a79ac177aaf5ee2ef2ebf90fd5c2cf603f4da0f6a85b1335ad48b78d1659a307"
+      "name": "xz",
+      "recipe_sha256": "cc0165e044078df523518fdfe9c0a630e8f4f4a32d5198e80cf1ec25b86f4950",
+      "version": "5.8.4"
     },
     {
-      "name": "mpfr",
-      "version": "4.2.2",
-      "recipe_sha256": "77b8c601b66359c40a88bf1b6bd88178491da9eccc67ba426c5a1f8e239a71ab"
+      "name": "zstd",
+      "recipe_sha256": "557606a8021515f656771c1c03440af2077e531c8804b83af883b0a9531a3d0d",
+      "version": "1.5.7_1"
     },
     {
-      "name": "flint",
-      "version": "3.6.0",
-      "recipe_sha256": "0ee6c8e10b94e7c887101f44b2a3a5fe8ab6846a23148c1f00983c893f7ba585"
-    },
-    {
-      "name": "gdbm",
-      "version": "1.26",
-      "recipe_sha256": "27685ca72697685578a5b5a74a643c7c769014338a6d7c8b7027b8f512a33b9d"
-    },
-    {
-      "name": "glpk",
-      "version": "5.0",
-      "recipe_sha256": "ab65a58e1bcd0a5611e6395e8a679701536b0e9b1284a5f76919b19a86a4b353"
-    },
-    {
-      "name": "jansson",
-      "version": "2.15.1",
-      "recipe_sha256": "40e9388ae09651c5710b5df12aa976280afa4ff48846351ed5a468a5439b0b36"
-    },
-    {
-      "name": "libffi",
-      "version": "3.8.0",
-      "recipe_sha256": "a75417ae3a03629df066974a2670225128d84b3fded46804e8e0cc7b1a5d0e10"
-    },
-    {
-      "name": "ntl",
-      "version": "11.6.0",
-      "recipe_sha256": "801a58458b7ca2c223222d537d89629a1598ef0e529d116ee09bbe458e3272e0"
-    },
-    {
-      "name": "mpfi",
-      "version": "1.5.4",
-      "recipe_sha256": "b223ee46d735e8d57bd877760d3eb76b2f25d8be335b7a9c5b2d16a2b633315d"
-    },
-    {
-      "name": "nauty",
-      "version": "2.9.3",
-      "recipe_sha256": "6e32f08e799f514216039b74d88344af0cafcfef5ffc6ca586685fe00b9afe62"
-    },
-    {
-      "name": "ca-certificates",
-      "version": "2026-09-25",
-      "recipe_sha256": "4eca277e1aae6252d98d367f1a727ee4650a19f736c61831c6debf76205770e6"
-    },
-    {
-      "name": "mpdecimal",
-      "version": "4.0.1",
-      "recipe_sha256": "283cd6ec52f50947e75406ab59481818bef4c46f8d48244578b55edea3b9cd9e"
-    },
-    {
-      "name": "openssl@4",
-      "version": "4.0.3",
-      "recipe_sha256": "6bfb490d0acc1b65ec4a2ffa693f7d70b9829b7bb0dcf5fca3f58b9358576fd9"
-    },
-    {
-      "name": "readline",
-      "version": "8.3.6",
-      "recipe_sha256": "1b591f5efee815317e9d37d213148d971e4768e5e7784b0c0c64f9acbe0bdbce"
-    },
-    {
-      "name": "sqlite",
-      "version": "3.53.4",
-      "recipe_sha256": "d849c8321d18ba5a1cb7cfd365d506b2fa39265cdd7972438b1715a716e58735"
-    },
-    {
-      "name": "python@3.14",
-      "version": "3.14.8_2",
-      "recipe_sha256": "8ce54ede31a0a2b2aa2d5b8a30dd5b0e4c73ebc579c48f98c529d98e2499da4e"
-    },
-    {
-      "name": "hwloc",
-      "version": "2.15.0",
-      "recipe_sha256": "d34637f49c4de3fd0dd80f7fc31245bec298795ccdad3f21445c041eab5fc7bb"
-    },
-    {
-      "name": "tbb",
-      "version": "2023.1.0",
-      "recipe_sha256": "afc4fa1c2ff91ac044380afa9800a4c9f30844939b5724ec541d7ba3d46f1edd"
-    },
-    {
-      "name": "cddlib",
-      "version": "0.94n",
-      "recipe_sha256": "4c078140cbeddce7504cdf196533eef6d712fb735b3ada14e8742b5899077521"
-    },
-    {
-      "name": "msolve",
-      "version": "0.11.0",
-      "recipe_sha256": "eba7fce63a3ce99fca4c98c071c25ef0f703cc2292c599be9dfeecc72d8d082e"
-    },
-    {
-      "name": "macaulay2/tap/givaro",
-      "version": "4.2.2",
-      "recipe_sha256": "3c946140d198c56415ae0e90c48e602eab982a7fbe4e5f99e81f932eec30ca42"
+      "name": "lz4",
+      "recipe_sha256": "eb39c32707a8ae8c4b1b207681b3cd59cf5360adb8db53df948ccef0ee333ba5",
+      "version": "1.10.0"
     },
     {
       "name": "macaulay2/tap/fflas-ffpack",
-      "version": "2.5.0_2",
-      "recipe_sha256": "26445420ed52af6fb310524ce84fec13672dbb3c0f63542c7418b2a70afd65ec"
+      "recipe_sha256": "26445420ed52af6fb310524ce84fec13672dbb3c0f63542c7418b2a70afd65ec",
+      "version": "2.5.0_2"
+    },
+    {
+      "name": "macaulay2/tap/givaro",
+      "recipe_sha256": "3c946140d198c56415ae0e90c48e602eab982a7fbe4e5f99e81f932eec30ca42",
+      "version": "4.2.2"
+    },
+    {
+      "name": "gmp",
+      "recipe_sha256": "e7eb8608f9d25bd82d16b38625e3e88a7a117d4bbc39b088e9df27252461062f",
+      "version": "6.3.0"
+    },
+    {
+      "name": "libomp",
+      "recipe_sha256": "a79ac177aaf5ee2ef2ebf90fd5c2cf603f4da0f6a85b1335ad48b78d1659a307",
+      "version": "23.1.3"
+    },
+    {
+      "name": "flint",
+      "recipe_sha256": "0ee6c8e10b94e7c887101f44b2a3a5fe8ab6846a23148c1f00983c893f7ba585",
+      "version": "3.6.0"
+    },
+    {
+      "name": "mpfr",
+      "recipe_sha256": "77b8c601b66359c40a88bf1b6bd88178491da9eccc67ba426c5a1f8e239a71ab",
+      "version": "4.2.2"
     },
     {
       "name": "macaulay2/tap/frobby",
-      "version": "0.9.9",
-      "recipe_sha256": "adeddf27637e354a747d60bbcc193e695f248943c37405b7791dc66b80590455"
+      "recipe_sha256": "adeddf27637e354a747d60bbcc193e695f248943c37405b7791dc66b80590455",
+      "version": "0.9.9"
+    },
+    {
+      "name": "gdbm",
+      "recipe_sha256": "27685ca72697685578a5b5a74a643c7c769014338a6d7c8b7027b8f512a33b9d",
+      "version": "1.26"
+    },
+    {
+      "name": "glpk",
+      "recipe_sha256": "ab65a58e1bcd0a5611e6395e8a679701536b0e9b1284a5f76919b19a86a4b353",
+      "version": "5.0"
+    },
+    {
+      "name": "jansson",
+      "recipe_sha256": "40e9388ae09651c5710b5df12aa976280afa4ff48846351ed5a468a5439b0b36",
+      "version": "2.15.1"
+    },
+    {
+      "name": "libffi",
+      "recipe_sha256": "a75417ae3a03629df066974a2670225128d84b3fded46804e8e0cc7b1a5d0e10",
+      "version": "3.8.0"
     },
     {
       "name": "macaulay2/tap/factory",
-      "version": "4.4.1_6",
-      "recipe_sha256": "9c518dfc26342c24b1dc9a29a83d589c08a5a678968f86dd153e2c19a218a7cd"
+      "recipe_sha256": "9c518dfc26342c24b1dc9a29a83d589c08a5a678968f86dd153e2c19a218a7cd",
+      "version": "4.4.1_6"
+    },
+    {
+      "name": "ntl",
+      "recipe_sha256": "801a58458b7ca2c223222d537d89629a1598ef0e529d116ee09bbe458e3272e0",
+      "version": "11.6.0"
+    },
+    {
+      "name": "mpfi",
+      "recipe_sha256": "b223ee46d735e8d57bd877760d3eb76b2f25d8be335b7a9c5b2d16a2b633315d",
+      "version": "1.5.4"
     },
     {
       "name": "macaulay2/tap/mpsolve",
-      "version": "3.2.3",
-      "recipe_sha256": "79cdb7183eb342ba7008217b9a2893170a8d10edf899ee4e9eb569a7db9748e5"
+      "recipe_sha256": "79cdb7183eb342ba7008217b9a2893170a8d10edf899ee4e9eb569a7db9748e5",
+      "version": "3.2.3"
     },
     {
-      "name": "macaulay2/tap/eantic",
-      "version": "2.1.1",
-      "recipe_sha256": "809bb7f38a19175211ca16d28ecd4b045e6625745b04aeeb0e8f48ea4bfce8b1"
+      "name": "nauty",
+      "recipe_sha256": "6e32f08e799f514216039b74d88344af0cafcfef5ffc6ca586685fe00b9afe62",
+      "version": "2.9.3"
     },
     {
       "name": "macaulay2/tap/normaliz",
-      "version": "3.11.1_2",
-      "recipe_sha256": "22dae7233274e3e308cea62aa9ae3562a716bec20e619acb77cfadd78610cac7"
+      "recipe_sha256": "22dae7233274e3e308cea62aa9ae3562a716bec20e619acb77cfadd78610cac7",
+      "version": "3.11.1_2"
+    },
+    {
+      "name": "macaulay2/tap/eantic",
+      "recipe_sha256": "809bb7f38a19175211ca16d28ecd4b045e6625745b04aeeb0e8f48ea4bfce8b1",
+      "version": "2.1.1"
+    },
+    {
+      "name": "python@3.14",
+      "recipe_sha256": "8ce54ede31a0a2b2aa2d5b8a30dd5b0e4c73ebc579c48f98c529d98e2499da4e",
+      "version": "3.14.8_2"
+    },
+    {
+      "name": "ca-certificates",
+      "recipe_sha256": "4eca277e1aae6252d98d367f1a727ee4650a19f736c61831c6debf76205770e6",
+      "version": "2026-09-25"
+    },
+    {
+      "name": "mpdecimal",
+      "recipe_sha256": "283cd6ec52f50947e75406ab59481818bef4c46f8d48244578b55edea3b9cd9e",
+      "version": "4.0.1"
+    },
+    {
+      "name": "openssl@4",
+      "recipe_sha256": "fb339ec13751060f6a4d907db0401875a074b4ae7e17a4e01e0830f57730a531",
+      "version": "4.0.3"
+    },
+    {
+      "name": "sqlite",
+      "recipe_sha256": "2725c5fd59f71db75e30813f2d95cbb4f0f364263df575c3756faca29bee88ee",
+      "version": "3.54.0"
+    },
+    {
+      "name": "readline",
+      "recipe_sha256": "1b591f5efee815317e9d37d213148d971e4768e5e7784b0c0c64f9acbe0bdbce",
+      "version": "8.3.6"
+    },
+    {
+      "name": "tbb",
+      "recipe_sha256": "afc4fa1c2ff91ac044380afa9800a4c9f30844939b5724ec541d7ba3d46f1edd",
+      "version": "2023.1.0"
+    },
+    {
+      "name": "hwloc",
+      "recipe_sha256": "d34637f49c4de3fd0dd80f7fc31245bec298795ccdad3f21445c041eab5fc7bb",
+      "version": "2.15.0"
     },
     {
       "name": "macaulay2/tap/cohomcalg",
-      "version": "0.32_1",
-      "recipe_sha256": "6842a4be075f756e0ba741ce53c23dd6fec85a174c8f68c892c0da73633e45a4"
+      "recipe_sha256": "6842a4be075f756e0ba741ce53c23dd6fec85a174c8f68c892c0da73633e45a4",
+      "version": "0.32_1"
     },
     {
       "name": "macaulay2/tap/csdp",
-      "version": "6.2.0_11",
-      "recipe_sha256": "6d179cae79fb9755b6a1fdf33b61d434e04a2e5cf7309f6ac69b45b5a6270a6a"
+      "recipe_sha256": "6d179cae79fb9755b6a1fdf33b61d434e04a2e5cf7309f6ac69b45b5a6270a6a",
+      "version": "6.2.0_11"
     },
     {
       "name": "macaulay2/tap/fourtitwo",
-      "version": "1.6.15",
-      "recipe_sha256": "1d8a06ad1610c5f33e0e6c5d3927ec5b80dd3d0eb9b793f84215ecdd0e8f38ed"
+      "recipe_sha256": "1d8a06ad1610c5f33e0e6c5d3927ec5b80dd3d0eb9b793f84215ecdd0e8f38ed",
+      "version": "1.6.15"
     },
     {
       "name": "macaulay2/tap/gfan",
-      "version": "0.8beta",
-      "recipe_sha256": "10b796ef4f3180962e83399ba3b91e99906b926016e1c785ca72d6b6b6bbe457"
+      "recipe_sha256": "10b796ef4f3180962e83399ba3b91e99906b926016e1c785ca72d6b6b6bbe457",
+      "version": "0.8beta"
+    },
+    {
+      "name": "cddlib",
+      "recipe_sha256": "4c078140cbeddce7504cdf196533eef6d712fb735b3ada14e8742b5899077521",
+      "version": "0.94n"
     },
     {
       "name": "macaulay2/tap/lrs",
-      "version": "073",
-      "recipe_sha256": "40f30c63cd4e7934450817549c189dcbb39c272fb0e1c82d1c65987a223b7ba2"
+      "recipe_sha256": "40f30c63cd4e7934450817549c189dcbb39c272fb0e1c82d1c65987a223b7ba2",
+      "version": "073"
+    },
+    {
+      "name": "msolve",
+      "recipe_sha256": "eba7fce63a3ce99fca4c98c071c25ef0f703cc2292c599be9dfeecc72d8d082e",
+      "version": "0.11.0"
     },
     {
       "name": "macaulay2/tap/topcom",
-      "version": "1.1.2_6",
-      "recipe_sha256": "36b6082da6389bf25d3f41d55c8d7de0ceaf9b122f3e526839f2e64468d10e79"
-    },
-    {
-      "name": "macaulay2/tap/macaulay2",
-      "version": "1.26.06_1",
-      "recipe_sha256": "233aa79b81958ae196fe66e967bec09e9580eb5c0bd8819656e5d0c2b6321cf4"
+      "recipe_sha256": "36b6082da6389bf25d3f41d55c8d7de0ceaf9b122f3e526839f2e64468d10e79",
+      "version": "1.1.2_6"
     }
-  ]
+  ],
+  "m2_commit": "94a1551b09dc10c9b24eb6faee8a2202eb9cb46e",
+  "release": "https://github.com/dimpase/M2-homebrew-tap/releases/tag/intel-bottles-38436650687",
+  "upstream_core_commit": "3e60bfb7e813eaedb3ffc19532998cd9bd2fd750",
+  "upstream_m2_commit": "e46e96c6fd9604a207ef6562aa4d654ad25693c4"
 }

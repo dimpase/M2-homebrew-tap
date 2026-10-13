@@ -1,28 +1,46 @@
 # Maintaining the Intel bottle distribution
 
-The stable distribution branches are `intel-bottles` in `dimpase/M2-homebrew-tap` and `dimpase/homebrew-core`. Dated release tags and their bottle files remain immutable snapshots. The installation script selects exact tested commits, so an upstream change cannot silently replace a working dependency set.
+The stable branches are `intel-bottles` in `dimpase/M2-homebrew-tap` and `dimpase/homebrew-core`. Published release tags preserve immutable bottle snapshots. The installer pins exact core and M2 metadata commits and verifies its release index checksum.
 
-## Automated upstream checks
+## Automatic updates
 
-The **Check Intel bottle updates** GitHub Actions workflow runs daily at 09:23 UTC. It can also be launched using **Actions → Check Intel bottle updates → Run workflow**, or:
+The **Update Intel bottles** workflow on `main` runs daily at 09:23 UTC. It can also be launched from **Actions → Update Intel bottles → Run workflow**, or:
 
 ```sh
-gh workflow run intel-bottle-updates.yml --repo dimpase/M2-homebrew-tap
+gh workflow run intel-bottle-updates.yml --repo dimpase/M2-homebrew-tap --ref main -f publish=true
 ```
 
-The workflow runs on a disposable GitHub-hosted Intel macOS 15 VM. It reads the current Homebrew core and Macaulay2 tap recipes, resolves M2's runtime dependency closure, and compares versions and recipe hashes with the published baseline. Its report identifies added, removed, and changed formulae and compatible upstream bottles for both macOS 15 and 26. Changes to recipe code with no version bump are included; top-level bottle metadata changes alone are ignored.
+Use `publish=false` to build and test a candidate without advancing the working branches. The candidate remains marked as a prerelease.
 
-Read the run summary or download the `intel-bottle-update-report` artifact. It includes the exact upstream commits and a machine-readable runtime inventory. A successful check means the report was generated; it does not mean an updated bottle set is ready.
+The workflow:
 
-## Publishing an update
+1. Resolves M2's current runtime closure from exact upstream core and tap commits. It compares package versions and recipe hashes with the last verified baseline. If nothing relevant changed, later jobs are skipped.
+2. Prepares candidates in a disposable Intel macOS 15 VM. It keeps existing private bottle overrides only for unchanged recipes with unchanged runtime dependency recipes and versions. Changes propagate to affected runtime dependents. It separately resolves build prerequisites.
+3. Pours compatible bottles and builds missing bottles sequentially. M2 uses the checksum-pinned official Node 26.11.1 Intel binary as a build-only tool. Builds require at least 25 GiB free and are interrupted below 20 GiB. Validated bottle artifacts are cached so retries can resume without rebuilding them.
+4. Saves source-build receipts, formula tests, linkage logs, and an audit of runtime Mach-O files for X11 linkage. A staging job creates candidate branches and a prerelease, then generates the index and installer with exact metadata pins.
+5. Runs clean installation tests in separate fresh `macos-15-intel` and `macos-26-intel` VMs. Every runtime package must pour from a bottle; M2 linkage and formula tests must pass.
+6. Verifies both sets of receipts and every uploaded asset digest, fast-forwards the two stable branches, marks the release verified/latest, and refreshes the default-branch monitoring baseline. Compilation or test failures leave the working distribution unchanged. Candidate releases and logs remain available for diagnosis.
 
-1. Use the reported upstream commits to prepare isolated candidate snapshots for both forks. Carry forward the headless M2 build fix while upstream still needs it.
-2. Reuse private bottles only when their recipe and dependency compatibility are established. Build missing runtime bottles on Intel macOS 15 so the resulting set can serve both macOS 15 and 26. Audit build prerequisites separately; the scheduled inventory covers runtime dependencies.
-3. Keep builds sequential and maintain the disk guards used by the existing local builder: at least 25 GiB free before starting, with interruption below 20 GiB. The monitoring workflow does not build packages or use the personal Mac.
-4. Publish the candidate bottles and a new immutable release index. Update the candidate installer with exact core and tap commits and the new index checksum.
-5. Run `intel-runner-smoke.yml` against the candidate distribution branch. Require clean installation, all runtime bottle receipts, linkage checks, and M2 formula tests to pass on both `macos-15-intel` and `macos-26-intel`.
-6. After both tests pass, advance `intel-bottles` in both forks, publish the verified installer and evidence, and refresh `automation/intel-baseline.json` on the default branch from the new upstream recipes and runtime inventory.
+The source-build job and both installation tests receive no publishing credentials. Staging and promotion use short-lived GitHub App tokens restricted to the two forks. The App ID is the `INTEL_BOTTLES_APP_ID` Actions variable, and the key is the `INTEL_BOTTLES_APP_PRIVATE_KEY` Actions secret in the M2 fork.
 
-The scheduled job deliberately has read-only repository permissions. Building and publishing new bottles remains a separate operation; it never merges upstream directly into the working distribution. This avoids pairing new formula versions with old bottle checksums. Full automatic publication would require a build pipeline and credentials able to update both forks.
+## Installing the current verified snapshot
 
-GitHub schedules run from the default branch, so the checker and baseline are installed on `main`; the working formula distribution stays on `intel-bottles`. If a public repository has no activity for 60 days, GitHub may disable its scheduled workflows; re-enable this workflow in Actions if necessary.
+Download the installer from the stable branch, inspect it, and run it on Intel macOS 15 or 26 with Homebrew at `/usr/local`:
+
+```sh
+curl -fL https://raw.githubusercontent.com/dimpase/M2-homebrew-tap/intel-bottles/install-m2-intel.sh -o install-m2-intel.sh
+less install-m2-intel.sh
+bash install-m2-intel.sh
+```
+
+The script pins the tested metadata pair. Existing source-built dependencies can fail its bottle-only receipt checks. It does not uninstall packages on a personal Mac.
+
+## Operational limits and recovery
+
+GitHub-hosted jobs have a six-hour execution limit. A failed build retains diagnostic artifacts and validated bottle cache entries; rerun the workflow to retry. Cache restoration requires the same dependency/source inventory. Never substitute an old bottle solely because its package version matches.
+
+A promotion spanning two repositories is not atomic. The installer remains pinned to an exact pair, and candidates descend from recorded stable heads; concurrent branch changes stop promotion. If publication fails after one branch advances, inspect the candidate state and finish or revert that promotion before retrying. Keep previous releases available for rollback.
+
+Only formula and alias directories are synchronized from upstream, so publishing does not require permission to modify GitHub workflow files. Review upstream workflow and infrastructure changes separately. The local headless M2 fix is carried only while upstream lacks it.
+
+Schedules run from the default branch. If GitHub disables the scheduled workflow after prolonged repository inactivity, re-enable it in Actions. When Intel hosted runners retire, configure an Intel macOS 15 self-hosted build runner and retain both installation environments where available.

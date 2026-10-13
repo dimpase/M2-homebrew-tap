@@ -15,16 +15,16 @@ export HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 export HOMEBREW_CORE_GIT_REMOTE=https://github.com/dimpase/homebrew-core.git
 unset DISPLAY
-core_commit=c1ebdca2ff4b1ccb46a02c3946f8bc6f9814b117
-m2_commit=5ded09e4d7921926d21eb2bb86c77c1a7d298f37
+core_commit=9ce039f253c79d9cfc7342e65b0e1e1f0360b308
+m2_commit=94a1551b09dc10c9b24eb6faee8a2202eb9cb46e
 m2_remote=https://github.com/dimpase/M2-homebrew-tap.git
-release_root=https://github.com/dimpase/M2-homebrew-tap/releases/download/intel-sequoia-20261009
+release_root=https://github.com/dimpase/M2-homebrew-tap/releases/download/intel-bottles-38436650687
 report=${M2_BOTTLE_REPORT:-m2-intel-pour-report.json}
 task_tmp=$(mktemp -d)
 trap 'rm -rf "$task_tmp"' EXIT
 
 curl -fL --retry 3 "$release_root/index.json" -o "$task_tmp/index.json"
-printf '%s  %s\n' 98d0f6efb4743a90b0052b1a3709c43206e641a65fb04d7850d7d22ce37eee4f "$task_tmp/index.json" | shasum -a 256 -c -
+printf '%s  %s\n' f515fa76b49eb45cd7c7d82b18220217c35c9cf13b5bb27f935afbe7d33d4778 "$task_tmp/index.json" | shasum -a 256 -c -
 
 # Preserve uncommitted work in any existing tap checkout.
 for tap in homebrew/core macaulay2/tap; do
