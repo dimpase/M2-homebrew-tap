@@ -251,6 +251,23 @@ def audit_x11(state):
     assert not report['x11_links'], 'Runtime contains X11 linkage'
 
 
+def source_build(row, state, node, folder):
+    command = [BREW, 'ruby', str(SCRIPT/'build-intel.rb'), row['name'], str(node)]
+    if row['name'] != 'macaulay2/tap/macaulay2':
+        return run(command, log=folder/'build.log', guard=True)
+    path = Path(state['tap_paths'][row['repository']])/row['path']
+    original = path.read_text()
+    temporary, count = re.subn(r'^  depends_on "node" => :build\n', '', original, flags=re.M)
+    assert count == 1, 'Expected one build-only Node dependency'
+    # Homebrew reparses the recipe in its build child, where it checks every opt link.
+    # The checksum-pinned external Node is used only while compiling M2.
+    try:
+        path.write_text(temporary)
+        return run(command, log=folder/'build.log', guard=True)
+    finally:
+        path.write_text(original)
+
+
 def build(_args):
     disposable()
     state = json.loads(STATE.read_text())
@@ -295,7 +312,7 @@ def build(_args):
             # Rebuild retries can leave an incomplete archive; discard those outputs only.
             for old_output in [*folder.glob('*.bottle.json'), *folder.glob('*.bottle*.tar.gz')]:
                 old_output.unlink()
-            run([BREW, 'ruby', str(SCRIPT/'build-intel.rb'), name, str(node)], log=folder/'build.log', guard=True)
+            source_build(row, state, node, folder)
             receipt = json.loads((Path('/usr/local/Cellar')/row['short_name']/row['version']/'INSTALL_RECEIPT.json').read_text())
             dump(folder/'source-receipt.json', receipt)
             assert receipt['built_as_bottle'] and not receipt['poured_from_bottle'], 'Not a source-built bottle receipt'

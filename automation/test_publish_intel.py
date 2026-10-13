@@ -47,6 +47,22 @@ class PublisherTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             publisher.append_overlay(result, publisher.bottle_overlay(metadata))
 
+    def test_external_node_recipe_restored_after_build_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            recipe = root/'macaulay2.rb'
+            original = 'class Macaulay2 < Formula\n  depends_on "node" => :build\n  depends_on "gmp"\nend\n'
+            recipe.write_text(original)
+            item = {'name': 'macaulay2/tap/macaulay2', 'repository': 'm2', 'path': recipe.name}
+            def failing_build(*args, **kwargs):
+                self.assertNotIn('depends_on "node"', recipe.read_text())
+                self.assertIn('depends_on "gmp"', recipe.read_text())
+                raise RuntimeError('compiler failure')
+            with patch.object(publisher, 'run', side_effect=failing_build):
+                with self.assertRaisesRegex(RuntimeError, 'compiler failure'):
+                    publisher.source_build(item, {'tap_paths': {'m2': str(root)}}, root/'node', root)
+            self.assertEqual(recipe.read_text(), original)
+
     def test_installer_checksum_replacement(self):
         import re
         template = Path(__file__).with_name('install-m2-intel.template.sh').read_text()
