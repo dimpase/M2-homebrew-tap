@@ -282,7 +282,7 @@ def build(_args):
         run([BREW, 'uninstall', '--force', '--ignore-dependencies', 'curl'])
     # This runner is disposable. Remove old runtime kegs before rebuilding or pouring.
     for name in state['runtime_names']:
-        if name == 'zstd':
+        if name in {'zstd', 'xz', 'lz4'}:
             continue  # Keep cache compression available before/after the build.
         versions = subprocess.run([BREW, 'list', '--versions', name], capture_output=True, text=True)
         if versions.stdout.strip():
@@ -304,7 +304,7 @@ def build(_args):
             metadata = json.loads(saved.read_text())
             archive = folder/metadata['local_filename']
             assert metadata['cache_key'] == state['cache_key'] and digest(archive) == metadata['sha256'], 'Cached bottle mismatch'
-            run([BREW, 'install', '--force-bottle', str(archive)], log=WORK/'logs'/(row['short_name'] + '-cache-pour.log'), guard=True)
+            run(['env', 'HOMEBREW_DEVELOPER=1', BREW, 'install', '--force-bottle', str(archive)], log=WORK/'logs'/(row['short_name'] + '-cache-pour.log'), guard=True)
         else:
             installed = subprocess.run([BREW, 'list', '--versions', name], capture_output=True, text=True)
             if installed.stdout.strip():
