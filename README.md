@@ -62,6 +62,38 @@ about bottling Macaulay2 and its dependencies for different architectures.
 The formula from which the Macaulay2 bottle on this tap is built uses the
 [CMake build system](https://github.com/Macaulay2/M2/wiki/Building-M2-from-source-using-CMake).
 
+## Draft: M2 with external CMake dependencies
+
+The `draft/m2-cmake-no-submodules` branch contains an **untested proposal** for
+`Formula/macaulay2.rb`. It uses `USE_SUBMODULES=OFF`, declares `memtailor`, `mathic`
+and `mathicgb` as dependencies, and removes the manual Git checkouts, bundled
+Emacs build and custom dependency/toolchain paths. Homebrew supplies the search
+paths; `std_cmake_args` supplies the release build and disables build-time tests.
+The package-install targets build M2-core as a dependency, retaining core
+documentation for HEAD and the full package installation for stable builds.
+
+Before this can be used:
+
+- M2 must include [#4758](https://github.com/Macaulay2/M2/pull/4758) and its
+  prerequisites [#4728](https://github.com/Macaulay2/M2/pull/4728) and
+  [#4757](https://github.com/Macaulay2/M2/pull/4757), plus the Emacs separation in
+  [#4730](https://github.com/Macaulay2/M2/pull/4730). The stable URL/checksum still
+  identify release 1.26.06 as placeholders; update them and reset the revision
+  when a suitable release is selected. HEAD also needs those changes upstream.
+- Update the `memtailor`, `mathic` and `mathicgb` formulae/bottles to include the
+  installed CMake/pkg-config metadata from Macaulay2/memtailor#23,
+  Macaulay2/mathic#29 and Macaulay2/mathicgb#84. Their existing version numbers
+  alone do not imply that the metadata is present. MathicGB must include TBB
+  support to match M2's default configuration.
+- Reassess the retained source patches and Homebrew packaging workarounds for
+  that release, then test and regenerate bottles. The old M2 bottle block is
+  removed because those bottles do not implement this draft.
+
+The Emacs interface is installed separately from
+[M2-emacs](https://github.com/Macaulay2/M2-emacs); `setupEmacs()` provides the
+installation instructions. No build, formula test, audit or style check has been
+run for this draft.
+
 ## Bug Reports
 For issues concerning Macaulay2 itself, file an issue on the
 [upstream repository](https://github.com/Macaulay2/M2/issues).

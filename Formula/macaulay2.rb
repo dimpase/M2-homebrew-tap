@@ -2,22 +2,14 @@ class Macaulay2 < Formula
   @name = "M2"
   desc "Software system for algebraic geometry research"
   homepage "http://macaulay2.com"
-  # when bumping to a new release, also update the submodule commits below
+  # Draft: update the release URL/checksum after M2#4758 and M2#4730 are included.
+  # The existing release metadata below is a placeholder; see README's draft notes.
   url "https://github.com/Macaulay2/M2/archive/refs/tags/release-1.26.06.tar.gz"
   sha256 "54f9e892941b2b548b90656c2b6d84a6d14c6908d5569bd61e7bb36b8c71bb29"
   license any_of: ["GPL-2.0-only", "GPL-3.0-only"]
   revision 1
 
   head "https://github.com/Macaulay2/M2/archive/refs/heads/development.tar.gz"
-
-  bottle do
-    root_url "https://ghcr.io/v2/macaulay2/tap"
-    rebuild 2
-    sha256 cellar: :any, arm64_tahoe:   "3f9f10dccad423efcdbf6fa026770c6f91446dafddf2562fb4c75b2802a74d00"
-    sha256 cellar: :any, arm64_sequoia: "61d87d68974cf7b508db11e2a9ef2a050884cac15e27ac8d7767bcb2ed6863e0"
-    sha256               arm64_linux:   "998a79b331ea8d05089fe6aaae68c7d14eec0ac78f71e697abad21b4772b7606"
-    sha256               x86_64_linux:  "1ac6987a730d5917cf9bee99b05d7e3756be5fd58e47620c97ab7761aed6d0f1"
-  end
 
   depends_on "bison" => :build
   depends_on "cmake" => :build
@@ -40,6 +32,10 @@ class Macaulay2 < Formula
   depends_on "libomp" if OS.mac?
   depends_on "macaulay2/tap/factory"
   depends_on "libxml2" unless OS.mac?
+  # Require updated packages with the upstream CMake/pkg-config metadata.
+  depends_on "mathic"
+  depends_on "mathicgb"
+  depends_on "memtailor"
   depends_on "mpfi"
   depends_on "mpfr"
   depends_on "mpsolve"
@@ -61,13 +57,6 @@ class Macaulay2 < Formula
 
   patch :DATA
 
-  def git_clone_at_commit(url, dir, commit)
-    system "git", "clone", url, dir
-    cd dir do
-      system "git", "checkout", commit
-    end
-  end
-
   def install
     # Build documentation without launching X11 programs such as xterm.
     ENV.delete("DISPLAY")
@@ -84,54 +73,13 @@ class Macaulay2 < Formula
                 "target_link_libraries(M2-interpreter PRIVATE quadmath)", ""
     end
 
-    # Place the submodules, since the tarfile doesn't include them
-    git_clone_at_commit(
-      "https://github.com/Macaulay2/M2-emacs.git",
-      "M2/Macaulay2/editors/emacs",
-      "ae882ab04da19f62c62462ef9604251a0b30a9f5",
-    )
-
-    git_clone_at_commit(
-      "https://github.com/Macaulay2/memtailor.git",
-      "M2/submodules/memtailor",
-      "a74747f70d5d4f2c79c9707b64c5086eb8c051b9",
-    )
-
-    git_clone_at_commit(
-      "https://github.com/Macaulay2/mathic.git",
-      "M2/submodules/mathic",
-      "59238ddb4a18af81f464de3d4634c06478769c98",
-    )
-
-    git_clone_at_commit(
-      "https://github.com/Macaulay2/mathicgb.git",
-      "M2/submodules/mathicgb",
-      "eae920070f0e9f8b34c08148f4caab7f89195601",
-    )
-
-    # Prefix paths for dependencies
-    lib_prefix = deps.map { |lib| Formula[lib.name].prefix }.join(";")
-    boost_stacktrace_path = "#{Formula["boost"].lib}/cmake/boost_stacktrace_backtrace"
-    boost_version = Formula["boost"].version
-
-    args = std_cmake_args
-    args << "-DBUILD_NATIVE=OFF"
-    args << "-DBUILD_TESTING=OFF"
-    args << "-DCMAKE_PREFIX_PATH=#{lib_prefix}"
-    args << "-Dboost_stacktrace_backtrace_DIR=#{boost_stacktrace_path}-#{boost_version}/"
-    args << "-DTBB_ROOT_DIR=#{Formula["tbb"].prefix}"
-    args << "-DWITH_OMP=ON" if build.with?("libomp") || !OS.mac?
-
-    if OS.mac?
-      ENV["MACOSX_DEPLOYMENT_TARGET"] = MacOS.version
-      ENV["SDKROOT"] = MacOS.sdk_path
-    end
-
+    # Homebrew supplies dependency search paths and the platform toolchain settings.
     build_path = "M2/BUILD/build-brew"
-    system "cmake", "-GNinja", "-SM2", "-B#{build_path}", *args
-    system "cmake", "--build", build_path, "--target", "M2-core", "M2-emacs"
-    system "cmake", "--build", build_path, "--target", "install-Macaulay2Doc"
-    system "cmake", "--build", build_path, "--target", "install-packages" unless head?
+    system "cmake", "-S", "M2", "-B", build_path, "-G", "Ninja",
+                    "-DUSE_SUBMODULES=OFF", "-DBUILD_NATIVE=OFF", *std_cmake_args
+    # Both package-install targets build M2-core through their CMake dependencies.
+    package_target = head? ? "install-Macaulay2Doc" : "install-packages"
+    system "cmake", "--build", build_path, "--target", package_target
     system "cmake", "--install", build_path
   end
 
