@@ -76,7 +76,7 @@ class Macaulay2 < Formula
     # Homebrew supplies dependency search paths and the platform toolchain settings.
     build_path = "M2/BUILD/build-brew"
     system "cmake", "-S", "M2", "-B", build_path, "-G", "Ninja",
-                    "-DUSE_SUBMODULES=OFF", "-DBUILD_NATIVE=OFF", *std_cmake_args
+                    "-DGIT_SUBMODULE=OFF", "-DBUILD_NATIVE=OFF", *std_cmake_args
     # Both package-install targets build M2-core through their CMake dependencies.
     package_target = head? ? "install-Macaulay2Doc" : "install-packages"
     system "cmake", "--build", build_path, "--target", package_target

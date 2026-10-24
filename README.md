@@ -65,10 +65,12 @@ The formula from which the Macaulay2 bottle on this tap is built uses the
 ## Draft: M2 with external CMake dependencies
 
 The `draft/m2-cmake-no-submodules` branch contains an **untested proposal** for
-`Formula/macaulay2.rb`. It uses `USE_SUBMODULES=OFF`, declares `memtailor`, `mathic`
+`Formula/macaulay2.rb`. It uses `GIT_SUBMODULE=OFF`, declares `memtailor`, `mathic`
 and `mathicgb` as dependencies, and removes the manual Git checkouts, bundled
 Emacs build and custom dependency/toolchain paths. Homebrew supplies the search
 paths; `std_cmake_args` supplies the release build and disables build-time tests.
+The stable and HEAD sources are GitHub archives without populated submodules;
+the revised CMake rules use installed dependencies when those sources are absent.
 The package-install targets build M2-core as a dependency, retaining core
 documentation for HEAD and the full package installation for stable builds.
 
